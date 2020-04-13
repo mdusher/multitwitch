@@ -10,17 +10,6 @@
 <script type="text/javascript" src="/static/js/mustache.js"></script>
 <script type="text/javascript" src="/static/js/multitwitch.js"></script>
 <script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-36803885-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-<script type="text/javascript">
 $(document).ready(function() {
     absolute_center($("#helpbox"));
     if ({{ nstreams }} == 0) {
@@ -51,9 +40,11 @@ $(window).resize(function() {
 <div id="wrapper">
 <div id="streams">
     {% for stream in streams %}
-
-    <iframe id="embed_{{ stream|e }}" src="http://player.twitch.tv/?muted=true&channel={{ stream|e }}" class="stream" allowfullscreen="true"></iframe>
-
+      {% if stream.startswith('yt-'): %}
+        <iframe id="embed_{{ stream|e }}" src="https://www.youtube.com/embed/{{ stream[3:]|e }}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>
+      {% else %}
+        <iframe id="embed_{{ stream|e }}" src="http://player.twitch.tv/?muted=true&channel={{ stream|e }}" class="stream" allowfullscreen="true"></iframe>
+      {% endif %}
     {% endfor %}
 </div>
 
@@ -65,7 +56,9 @@ $(window).resize(function() {
 </ul>
 {% for stream in unique_streams %}
 <div id="chat-{{ stream|e }}" class="stream_chat">
-<iframe frameborder="0" scrolling="no" id="chat-{{ stream|e }}-embed" src="http://twitch.tv/chat/embed?channel={{ stream|e }}&amp;popout_chat=true" height="100%" width="100%"></iframe>
+      {% if not stream.startswith('yt-'): %}
+        <iframe frameborder="0" scrolling="no" id="chat-{{ stream|e }}-embed" src="http://twitch.tv/chat/embed?channel={{ stream|e }}&amp;popout_chat=true" height="100%" width="100%"></iframe>
+      {% endif %}
 </div>
 {% endfor %}
 </div>
