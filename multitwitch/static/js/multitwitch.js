@@ -126,7 +126,7 @@ function stream_item_keyup(e) {
 
 function stream_object(name, platform) {
     if (typeof platform !== 'undefined') {
-        return $('<iframe id="embed_' + name + '" src="https://www.youtube.com/embed/' + name + '?autoplay=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
+        return $('<iframe id="embed_' + name + '" src="https://www.youtube.com/embed/' + name + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
     } else {
         return $('<iframe id="embed_' + name + '" src="http://player.twitch.tv/?muted=true&channel=' + name + '" class="stream" allowfullscreen="true"></iframe>');
     }
