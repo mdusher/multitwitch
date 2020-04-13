@@ -176,6 +176,8 @@ function close_change_streams(apply) {
                 stream_elements[i].remove();
 		if (typeof chat_elements[i] !== 'undefined') {
                     chat_elements[i].remove();
+		}
+		if (typeof chat_tab_elements[i] !== 'undefined') {
                     chat_tab_elements[i].remove();
 	        }
             } else {
