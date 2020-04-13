@@ -1,5 +1,4 @@
 from pyramid.config import Configurator
-
 from .config import routes
 
 def main(global_config, **settings):
@@ -8,4 +7,3 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.include(routes)
     return config.make_wsgi_app()
-

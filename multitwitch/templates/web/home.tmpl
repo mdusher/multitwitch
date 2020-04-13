@@ -10,17 +10,6 @@
 <script type="text/javascript" src="/static/js/mustache.js"></script>
 <script type="text/javascript" src="/static/js/multitwitch.js"></script>
 <script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-36803885-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-<script type="text/javascript">
 $(document).ready(function() {
     absolute_center($("#helpbox"));
     if ({{ nstreams }} == 0) {
@@ -29,12 +18,13 @@ $(document).ready(function() {
     }
 
     {% for stream in streams %}
-    streams.push("{{ stream|e }}");
+    streams.push({{ stream|to_json }});
     {% endfor %}
 
     // Setup tabs
     chat_tabs = $("#chatbox").tabs();
-
+    // Hide chat
+    hide_chat();
     // Do this after all the jqueryui setup.
     optimize_size({{ nstreams }});
     setTimeout(function(){
@@ -51,21 +41,27 @@ $(window).resize(function() {
 <div id="wrapper">
 <div id="streams">
     {% for stream in streams %}
-
-    <iframe id="embed_{{ stream|e }}" src="http://player.twitch.tv/?muted=true&channel={{ stream|e }}" class="stream" allowfullscreen="true"></iframe>
-
+      {% set stream_url = 'https://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] %}
+      {% if stream["platform"] == "youtube": %}
+        {% set stream_url = 'https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=' + stream["channel_id"] %}
+      {% endif %}
+      <iframe id="embed_{{ stream["name"]|e }}" src="{{ stream_url|e }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>
     {% endfor %}
 </div>
 
 <div id="chatbox">
 <ul id="tablist">
 {% for stream in unique_streams %}
-<li><a href="#chat-{{ stream|e }}">{{ stream|e }}</a></li>
+      {% if not stream.startswith('yt-'): %}
+<li><a href="#chat-{{ stream["name"]|e }}">{{ stream|e }}</a></li>
+      {% endif %}
 {% endfor %}
 </ul>
 {% for stream in unique_streams %}
-<div id="chat-{{ stream|e }}" class="stream_chat">
-<iframe frameborder="0" scrolling="no" id="chat-{{ stream|e }}-embed" src="http://twitch.tv/chat/embed?channel={{ stream|e }}&amp;popout_chat=true" height="100%" width="100%"></iframe>
+<div id="chat-{{ stream["name"]|e }}" class="stream_chat">
+      {% if stream["platform"] == "twitch": %}
+        <iframe frameborder="0" scrolling="no" id="chat-{{ stream["name"]|e }}-embed" src="http://twitch.tv/chat/embed?channel={{ stream["channel_id"]|e }}&amp;popout_chat=true" height="100%" width="100%"></iframe>
+      {% endif %}
 </div>
 {% endfor %}
 </div>
@@ -74,7 +70,20 @@ $(window).resize(function() {
 <div id="helpbox">
 <h1>MultiTwitch.tv</h1>
 <div id="helptext">
-Welcome to MultiTwitch! You can use this site to watch any number of <a href="http://twitch.tv/">twitch.tv</a> streams at the same time (as long as your computer can handle it). Simply put the streams you want in the url. For example: <a href="/gunnermaniac3/narcissawright">multitwitch.tv/gunnermaniac3/narcissawright</a>. MultiTwitch will optimize the layout of streams to give you the maximum size on each of the streams, while maintaining aspect ratio. For the curious, the source of this page is available at <a href="https://github.com/bhamrick/multitwitch">github.com/bhamrick/multitwitch</a>. Happy streamwatching!
+Welcome to MultiTwitch!<br />
+<br />
+You can use this site to watch any number of <a href="http://twitch.tv/">twitch.tv</a> and <a href="https://youtube.com">YouTube</a> streams at the same time (as long as your computer can handle it).<br />
+<br />
+For Twitch streamers, simply put the username for the streams you want in the url.<br />
+For YouTube streamers, you will need to add "yt-" to the start of their channel name.<br />
+<br />
+<strong>For example:</strong><br />
+<a href="/gunnermaniac3/narcissawright">multitwitch.tv/gunnermaniac3/narcissawright</a><br />
+<a href="/gunnermaniac3/narcissawright/yt-LazarBeam">multitwitch.tv/gunnermaniac3/yt-LazarBeam/narcissawright/yt-PewDiePie</a><br />
+<br />
+MultiTwitch will optimize the layout of streams to give you the maximum size on each of the streams, while maintaining aspect ratio. For the curious, the source of this page is available at <a href="https://github.com/bhamrick/multitwitch">github.com/bhamrick/multitwitch</a>.<br />
+<br />
+Happy streamwatching!
 </div>
 
 <div id="credits">
@@ -87,7 +96,7 @@ Created by Brian Hamrick
     {% for stream in streams %}
     <div class="streamlist_item">
     <input type="checkbox" checked=true class="check" />
-    <span>{{ stream|e }}</span>
+    <span>{{ stream["name"]|e }}</span>
     </div>
     {% endfor %}
     <div class="streamlist_item">

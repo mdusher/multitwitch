@@ -6,5 +6,9 @@ def routes(config):
     config.add_route('favicon', '/favicon.ico')
     config.add_view(WebView.favicon, route_name='favicon')
 
+    config.add_route('getYTChannelID', '/getYTChannelID/{username}')
+    config.add_view(WebView.getYTChannelID, route_name='getYTChannelID', renderer='json')
+
     config.add_route('root', '*streams')
     config.add_view(WebView.home, route_name='root')
+
