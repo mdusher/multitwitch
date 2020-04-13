@@ -126,7 +126,8 @@ function stream_item_keyup(e) {
 
 function stream_object(name, platform) {
     if (typeof platform !== 'undefined') {
-        return $('<iframe id="embed_' + name + '" src="https://www.youtube.com/embed/' + name + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
+        stream_id = name.substring(3);
+        return $('<iframe id="embed_' + name + '" src="https://www.youtube.com/embed/' + stream_id + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
     } else {
         return $('<iframe id="embed_' + name + '" src="http://player.twitch.tv/?muted=true&channel=' + name + '" class="stream" allowfullscreen="true"></iframe>');
     }
@@ -134,14 +135,12 @@ function stream_object(name, platform) {
 function chat_object(name, platform) { 
     if (typeof platform === 'undefined') {
         return $('<div id="chat-' + name + '" class="stream_chat"><iframe frameborder="0" scrolling="no" id="chat-' + name + '-embed" src="http://twitch.tv/chat/embed?channel=' + name + '&popout_chat=true" height="100%" width="100%"></iframe></div>');
-
     }
 }
 
 function chat_tab_object(name, platform) {
     if (typeof platform === 'undefined') {
         return $('<li><a href="#chat-' + name + '">' + name + '</a></li>');
-
     }
 }
 
@@ -175,8 +174,10 @@ function close_change_streams(apply) {
         for (var i = 0; i < streams.length; i++) {
             if (!list_checks[i].checked) {
                 stream_elements[i].remove();
-                chat_elements[i].remove();
-                chat_tab_elements[i].remove();
+		if (typeof chat_elements[i] !== 'undefined') {
+                    chat_elements[i].remove();
+                    chat_tab_elements[i].remove();
+	        }
             } else {
                 new_streams.push(streams[i]);
             }
@@ -185,10 +186,8 @@ function close_change_streams(apply) {
         var new_stream_inputs = $("#streamlist .stream_name");
         for (var i = 0; i < new_stream_inputs.length; i++) {
             var stream_name = new_stream_inputs[i].value;
-            console.log(stream_name);
 	    var platform = undefined;
             if (stream_name.startsWith("yt")) {
-		    stream_name = stream_name.substring(3);
 		    platform = "yt"
             }
             if (stream_name == "") {
