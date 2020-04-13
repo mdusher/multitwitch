@@ -18,7 +18,7 @@ $(document).ready(function() {
     }
 
     {% for stream in streams %}
-    streams.push("{{ stream|e }}");
+    streams.push({{ stream|to_json }});
     {% endfor %}
 
     // Setup tabs
@@ -41,11 +41,11 @@ $(window).resize(function() {
 <div id="wrapper">
 <div id="streams">
     {% for stream in streams %}
-      {% if stream.startswith('yt-'): %}
-        <iframe id="embed_{{ stream|e }}" src="https://www.youtube.com/embed/{{ stream[3:]|e }}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>
-      {% else %}
-        <iframe id="embed_{{ stream|e }}" src="http://player.twitch.tv/?muted=true&channel={{ stream|e }}" class="stream" allowfullscreen="true"></iframe>
+      {% set stream_url = 'http://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] %}
+      {% if stream["platform"] == "youtube": %}
+        {% set stream_url = 'https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=' + stream["channel_id"] %}
       {% endif %}
+      <iframe id="embed_{{ stream["name"]|e }}" src="{{ stream_url|e }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>
     {% endfor %}
 </div>
 
@@ -53,14 +53,14 @@ $(window).resize(function() {
 <ul id="tablist">
 {% for stream in unique_streams %}
       {% if not stream.startswith('yt-'): %}
-<li><a href="#chat-{{ stream|e }}">{{ stream|e }}</a></li>
+<li><a href="#chat-{{ stream["name"]|e }}">{{ stream|e }}</a></li>
       {% endif %}
 {% endfor %}
 </ul>
 {% for stream in unique_streams %}
-<div id="chat-{{ stream|e }}" class="stream_chat">
-      {% if not stream.startswith('yt-'): %}
-        <iframe frameborder="0" scrolling="no" id="chat-{{ stream|e }}-embed" src="http://twitch.tv/chat/embed?channel={{ stream|e }}&amp;popout_chat=true" height="100%" width="100%"></iframe>
+<div id="chat-{{ stream["name"]|e }}" class="stream_chat">
+      {% if stream["platform"] == "twitch": %}
+        <iframe frameborder="0" scrolling="no" id="chat-{{ stream["name"]|e }}-embed" src="http://twitch.tv/chat/embed?channel={{ stream["channel_id"]|e }}&amp;popout_chat=true" height="100%" width="100%"></iframe>
       {% endif %}
 </div>
 {% endfor %}
@@ -83,7 +83,7 @@ Created by Brian Hamrick
     {% for stream in streams %}
     <div class="streamlist_item">
     <input type="checkbox" checked=true class="check" />
-    <span>{{ stream|e }}</span>
+    <span>{{ stream["name"]|e }}</span>
     </div>
     {% endfor %}
     <div class="streamlist_item">

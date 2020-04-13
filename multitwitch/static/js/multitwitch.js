@@ -124,23 +124,23 @@ function stream_item_keyup(e) {
     return true;
 }
 
-function stream_object(name, platform) {
-    if (typeof platform !== 'undefined') {
+function stream_object(stream) {
+    if (stream["platform"] === 'youtube') {
         stream_id = name.substring(3);
-        return $('<iframe id="embed_' + name + '" src="https://www.youtube.com/embed/' + stream_id + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
+        return $('<iframe id="embed_' + name + '" src="https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=' + stream["channel_id"] + '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
     } else {
-        return $('<iframe id="embed_' + name + '" src="http://player.twitch.tv/?muted=true&channel=' + name + '" class="stream" allowfullscreen="true"></iframe>');
+        return $('<iframe id="embed_' + name + '" src="http://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] + '" class="stream" allowfullscreen="true"></iframe>');
     }
 }
-function chat_object(name, platform) { 
-    if (typeof platform === 'undefined') {
+function chat_object(stream) { 
+    if (stream["platform"] === 'twitch') {
         return $('<div id="chat-' + name + '" class="stream_chat"><iframe frameborder="0" scrolling="no" id="chat-' + name + '-embed" src="http://twitch.tv/chat/embed?channel=' + name + '&popout_chat=true" height="100%" width="100%"></iframe></div>');
     }
 }
 
-function chat_tab_object(name, platform) {
-    if (typeof platform === 'undefined') {
-        return $('<li><a href="#chat-' + name + '">' + name + '</a></li>');
+function chat_tab_object(stream) {
+    if (stream["platform"] === 'twitch') {
+        return $('<li><a href="#chat-' + stream["name"] + '">' + stream["name"] + '</a></li>');
     }
 }
 
@@ -150,7 +150,7 @@ function update_stream_list() {
     // Update the contents of #streamlist to match streams
     $("#streamlist .streamlist_item").remove();
     for (var i = 0; i < streams.length; i++) {
-        $("#streamlist").append($('<div class="streamlist_item"><input type="checkbox" class="check" checked=true" /> <span>' + streams[i] + '</span></div>'));
+        $("#streamlist").append($('<div class="streamlist_item"><input type="checkbox" class="check" checked=true" /> <span>' + streams[i]["name"] + '</span></div>'));
     }
     $("#streamlist").append($(item_string));
 }
@@ -184,31 +184,42 @@ function close_change_streams(apply) {
                 new_streams.push(streams[i]);
             }
         }
-        // add new streams
+        streams = new_streams
+
+	// add new streams
         var new_stream_inputs = $("#streamlist .stream_name");
         for (var i = 0; i < new_stream_inputs.length; i++) {
-            var stream_name = new_stream_inputs[i].value;
-	    var platform = undefined;
-            if (stream_name.startsWith("yt")) {
-		    platform = "yt"
-            }
+	    var stream_name = new_stream_inputs[i].value;
             if (stream_name == "") {
                 continue;
             }
-            new_streams.push(stream_name);
-            $("#streams").append(stream_object(stream_name, platform));
-            $("#chatbox").append(chat_object(stream_name, platform));
-            $("#tablist").append(chat_tab_object(stream_name, platform));
-            chat_tabs.tabs("refresh");
+            var stream_item = {"name": stream_name, "channel_id": stream_name, "platform": "twitch"}
+            if (stream_name.startsWith("yt-")) {
+                stream_item["platform"] = "youtube"
+		$.getJSON('/getYTChannelID/'+stream_name.substring(3), function (data) {
+		    stream_item["channel_id"] = data.channel_id
+                    $("#streams").append(stream_object(stream_item));
+                    $("#chatbox").append(chat_object(stream_item));
+                    $("#tablist").append(chat_tab_object(stream_item));
+                    chat_tabs.tabs("refresh");
+	            streams.push(stream_item)
+                    optimize_size(streams.length);
+                    var new_url = window.location.href + '/' + stream_item["name"];
+                    history.replaceState(null, "", new_url);
+                    update_stream_list();
+		});
+	    } else {
+                $("#streams").append(stream_object(stream_item));
+                $("#chatbox").append(chat_object(stream_item));
+                $("#tablist").append(chat_tab_object(stream_item));
+                chat_tabs.tabs("refresh");
+	        streams.push(stream_item)
+                var new_url = window.location.href + '/' + stream_item["name"];
+                history.replaceState(null, "", new_url);
+            }
         }
-        streams = new_streams;
         optimize_size(streams.length);
-        var new_url = "";
-        for (var i = 0; i < streams.length; i++) {
-            new_url = new_url + '/' + streams[i];
-        }
-        history.replaceState(null, "", new_url);
+        $("#change_streams").hide();
+        update_stream_list();
     }
-    $("#change_streams").hide();
-    update_stream_list();
 }

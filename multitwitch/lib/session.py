@@ -1,6 +1,5 @@
 from pyramid.response import Response
 import jinja2
-
 import simplejson as json
 
 env = jinja2.Environment(loader=jinja2.FileSystemLoader('multitwitch/templates'))
@@ -41,3 +40,11 @@ def ajax(*args, **kwargs):
                     )
         return staticmethod(wrapper)
     return decorator
+
+def to_json(value):
+    return json.dumps(value)
+    """
+    return mark_safe(simplejson.dumps(value))
+    """
+
+env.filters['to_json'] = to_json
