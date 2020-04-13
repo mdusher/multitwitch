@@ -1,4 +1,5 @@
 from multitwitch.lib.session import web, ajax
+from multitwitch.lib.youtube import Youtube
 from pyramid.response import FileResponse
 from urllib2 import Request, urlopen, URLError
 import re
@@ -22,22 +23,5 @@ class WebView:
 
     @staticmethod
     def getYTChannelID(request):
-        requrl = 'https://www.youtube.com/' + request.matchdict['username']
-        req = Request(requrl)
-        try:
-            response = urlopen(req)
-        except URLError as e:
-            if hasattr(e, 'reason'):
-                return {'error' : e.reason }
-            if hasattr(e, 'code'):
-                return {'error' : 'Error code: ' + e.code}
-        else:
-            r = response.read()
-            m = re.search('https:\/\/www\.youtube\.com\/channel\/([^\"]*)', r)
-            if not m == None:
-                channel_id = m.group(1)
-                return {'channel_id' : channel_id,
-                        'username' : request.matchdict['username']}
-            else:
-                return {'error' : 'user not found'}
+                return Youtube.getChannelID(request.matchdict['username'])
 
