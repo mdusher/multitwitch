@@ -127,14 +127,14 @@ function stream_item_keyup(e) {
 function stream_object(stream) {
     if (stream["platform"] === 'youtube') {
         stream_id = name.substring(3);
-        return $('<iframe id="embed_' + name + '" src="https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=' + stream["channel_id"] + '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
+        return $('<iframe id="embed_' + stream["name"] + '" src="https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=' + stream["channel_id"] + '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
     } else {
-        return $('<iframe id="embed_' + name + '" src="http://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] + '" class="stream" allowfullscreen="true"></iframe>');
+        return $('<iframe id="embed_' + stream["name"] + '" src="http://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] + '" class="stream" allowfullscreen="true"></iframe>');
     }
 }
 function chat_object(stream) { 
     if (stream["platform"] === 'twitch') {
-        return $('<div id="chat-' + name + '" class="stream_chat"><iframe frameborder="0" scrolling="no" id="chat-' + name + '-embed" src="http://twitch.tv/chat/embed?channel=' + name + '&popout_chat=true" height="100%" width="100%"></iframe></div>');
+        return $('<div id="chat-' + stream["name"] + '" class="stream_chat"><iframe frameborder="0" scrolling="no" id="chat-' + stream["name"] + '-embed" src="http://twitch.tv/chat/embed?channel=' + stream["name"] + '&popout_chat=true" height="100%" width="100%"></iframe></div>');
     }
 }
 
@@ -162,6 +162,25 @@ function focus_last_stream_box() {
     }
 }
 
+function path_join(parts){
+    const separator = '/';
+    parts = parts.map(function (part, index) {
+        if (index) {
+            part = part.replace(new RegExp('^' + separator), '');
+        }
+        if (index !== parts.length - 1) {
+            part = part.replace(new RegExp(separator + '$'), '');
+        }
+        return part;
+    })
+    return parts.join(separator);
+}
+
+function update_url(username) {
+    new_url = path_join([window.location.href, username]);
+    history.replaceState(null, "", new_url);
+}
+
 function close_change_streams(apply) {
     var new_streams;
     if(apply) {
@@ -185,7 +204,6 @@ function close_change_streams(apply) {
             }
         }
         streams = new_streams
-
 	// add new streams
         var new_stream_inputs = $("#streamlist .stream_name");
         for (var i = 0; i < new_stream_inputs.length; i++) {
@@ -204,8 +222,7 @@ function close_change_streams(apply) {
                     chat_tabs.tabs("refresh");
 	            streams.push(stream_item)
                     optimize_size(streams.length);
-                    var new_url = window.location.href + '/' + stream_item["name"];
-                    history.replaceState(null, "", new_url);
+                    update_url(stream_item["name"])
                     update_stream_list();
 		});
 	    } else {
@@ -214,8 +231,7 @@ function close_change_streams(apply) {
                 $("#tablist").append(chat_tab_object(stream_item));
                 chat_tabs.tabs("refresh");
 	        streams.push(stream_item)
-                var new_url = window.location.href + '/' + stream_item["name"];
-                history.replaceState(null, "", new_url);
+                update_url(stream_item["name"])
             }
         }
         optimize_size(streams.length);
