@@ -18,7 +18,6 @@ function optimize_size(n) {
         } else {
             $("#helpbox").hide();
             if (num_streams == 0) {
-                show_chat();
                 chat_tabs.tabs({ active: 0 });
             }
         }
