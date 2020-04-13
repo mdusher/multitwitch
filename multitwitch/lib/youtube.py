@@ -1,4 +1,5 @@
-from urllib2 import Request, urlopen, URLError
+from urllib.request import Request, urlopen, URLError
+from urllib.error import URLError
 import re
 
 class Youtube:
@@ -15,10 +16,10 @@ class Youtube:
                 return {'error' : 'Error code: ' + e.code}
         else:
             r = response.read()
-            m = re.search('https:\/\/www\.youtube\.com\/channel\/([^\"]*)', r)
+            m = re.search(b'https:\/\/www\.youtube\.com\/channel\/([^\"]*)', r)
             if not m == None:
                 channel_id = m.group(1)
-                return {'channel_id' : channel_id,
+                return {'channel_id' : channel_id.decode('utf-8'),
                         'username' : username}
             else:
                 return {'error' : 'user not found'}

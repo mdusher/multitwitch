@@ -1,7 +1,8 @@
 from multitwitch.lib.session import web, ajax
 from multitwitch.lib.youtube import Youtube
 from pyramid.response import FileResponse
-from urllib2 import Request, urlopen, URLError
+from urllib.request import Request, urlopen
+from urllib.error import URLError
 import re
 
 class WebView:
