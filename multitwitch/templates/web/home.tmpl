@@ -41,7 +41,7 @@ $(window).resize(function() {
 <div id="wrapper">
 <div id="streams">
     {% for stream in streams %}
-      {% set stream_url = 'http://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] %}
+      {% set stream_url = 'https://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] %}
       {% if stream["platform"] == "youtube": %}
         {% set stream_url = 'https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=' + stream["channel_id"] %}
       {% endif %}

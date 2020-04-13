@@ -128,7 +128,7 @@ function stream_object(stream) {
         stream_id = name.substring(3);
         return $('<iframe id="embed_' + stream["name"] + '" src="https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=' + stream["channel_id"] + '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" class="stream" allowfullscreen="true"></iframe>');
     } else {
-        return $('<iframe id="embed_' + stream["name"] + '" src="http://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] + '" class="stream" allowfullscreen="true"></iframe>');
+        return $('<iframe id="embed_' + stream["name"] + '" src="https://player.twitch.tv/?muted=true&channel=' + stream["channel_id"] + '" class="stream" allowfullscreen="true"></iframe>');
     }
 }
 function chat_object(stream) { 

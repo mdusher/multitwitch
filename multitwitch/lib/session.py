@@ -42,7 +42,9 @@ def ajax(*args, **kwargs):
     return decorator
 
 def to_json(value):
+    """
     value = value.decode('utf-8')
+    """
     return json.dumps(value)
 
 env.filters['to_json'] = to_json
